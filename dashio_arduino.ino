@@ -1,8 +1,7 @@
 
 int digitalInputs = 0;
 int serialRead = 0;  //was "byte"  !!!!!!!!!!!!!!!!!!!
-
-
+int state = 0;
 
 void setup() {
   
@@ -19,15 +18,20 @@ void setup() {
   pinMode(2, INPUT);  //DI4
   pinMode(3, INPUT);  //DI5
   pinMode(4, INPUT);  //IGN_IN
-
 }
 
 void loop() {
 
   //read digital DI's
   for (int pin = 4; pin >= 2; pin--) {
-    digitalInputs |= !digitalRead(pin);
+    state = !digitalRead(pin);
+    digitalInputs |= state;
     digitalInputs = digitalInputs << 1;
+    if (pin == 4) {
+      if (state == 0) {
+        killAllOutputs();
+      }
+    }
   }
 
   //read analog DI's
@@ -67,5 +71,12 @@ void digitalCommand() {
     
   digitalWrite(pin, digitalValue);
   
+}
+
+void killAllOutputs() {
+  
+  for (int pin = 5; pin < 11; pin++) {
+    digitalWrite(pin, 0);
+  }
 }
 
