@@ -1,82 +1,154 @@
 
-int digitalInputs = 0;
-int serialRead = 0;  //was "byte"  !!!!!!!!!!!!!!!!!!!
-int state = 0;
+//digital output pins
+int do_0_pin = 5;
+int do_1_pin = 6;
+int do_2_pin = 7;
+int do_3_pin = 8;
+int do_4_pin = 9;
+int do_5_pin = 10;
+
+//digital input pins
+int di_0_pin = 5; //analog input
+int di_1_pin = 4; //analog input
+int di_2_pin = 3; //analog input
+int di_3_pin = 2; //analog input
+int di_4_pin = 2;
+int di_5_pin = 3;
+int ignition_pin = 4;
+
+//digital output states
+int do_0_state = 0;
+int do_1_state = 0;
+int do_2_state = 0;
+int do_3_state = 0;
+int do_4_state = 0;
+int do_5_state = 0;
+
+//digital input states
+int di_0_state = 0; //analog input
+int di_1_state = 0; //analog input
+int di_2_state = 0; //analog input
+int di_3_state = 0; //analog input
+int di_4_state = 0;
+int di_5_state = 0;
+int ignition_state = 0;
+
+//misc
+int ai_threshold = 128;
+unsigned long main_timer = millis();
+String data_string;
 
 void setup() {
   
   Serial.begin(115200);  
 
-  pinMode(5, OUTPUT);   //DO0
-  pinMode(6, OUTPUT);   //DO1
-  pinMode(7, OUTPUT);   //DO2
-  pinMode(8, OUTPUT);   //DO3
-  pinMode(9, OUTPUT);   //DO4
-  pinMode(10, OUTPUT);  //DO5
-  //pinMode(11, OUTPUT);  //DO6
-  //pinMode(12, OUTPUT);  //DO7
-  pinMode(2, INPUT);  //DI4
-  pinMode(3, INPUT);  //DI5
-  pinMode(4, INPUT);  //IGN_IN
+  pinMode(do_0_pin, OUTPUT);
+  pinMode(do_1_pin, OUTPUT);
+  pinMode(do_2_pin, OUTPUT);
+  pinMode(do_3_pin, OUTPUT);
+  pinMode(do_4_pin, OUTPUT);
+  pinMode(do_5_pin, OUTPUT);
+  pinMode(di_4_pin, INPUT);
+  pinMode(di_5_pin, INPUT);
+  pinMode(ignition_pin, INPUT);
 }
 
 void loop() {
 
-  //read digital DI's
-  for (int pin = 4; pin >= 2; pin--) {
-    state = !digitalRead(pin);
-    digitalInputs |= state;
-    digitalInputs = digitalInputs << 1;
-    if (pin == 4) {
-      if (state == 0) {
-        killAllOutputs();
-      }
-    }
-  }
-
-  //read analog DI's
-  for (int pin = 5; pin >= 2; pin--) {
-    int aiValue = analogRead(pin);
-    int aiState = 0;
-    if (aiValue < 128) {
-      aiState = 1;
-    }
-    digitalInputs |= aiState;
-    digitalInputs = digitalInputs << 1;
+  if ((millis() - main_timer) >= 100) {
+    main_timer = millis();
+    digitalInputs();
+    sendData();
   }
   
-  digitalInputs = digitalInputs >> 1;
-  Serial.print(digitalInputs);
-  Serial.print("\n");
-  digitalInputs = 0;
+  checkSerial();
 
-  delay(100);
+  //if ignition is off, then turn off all digital outputs
+  if (ignition_state == 0) {
+    killAllOutputs();
+  }
+  
+}  
 
+void sendData() {
+  data_string = "";
+  addStringData(String(di_0_state));
+  addStringData(String(di_1_state));
+  addStringData(String(di_2_state));
+  addStringData(String(di_3_state));
+  addStringData(String(di_4_state));
+  addStringData(String(di_5_state));
+  Serial.println(data_string);
+}  
+
+void addStringData(String data) {
+  data_string += data + ",";
+}
+
+void digitalInputs() {
+  di_0_state = readAnalogDI(di_0_pin);
+  di_1_state = readAnalogDI(di_1_pin);
+  di_2_state = readAnalogDI(di_2_pin);
+  di_3_state = readAnalogDI(di_3_pin);
+  di_4_state = !digitalRead(di_4_pin);
+  di_5_state = !digitalRead(di_5_pin);
+  ignition_state = !digitalRead(ignition_pin);
+}
+
+int readAnalogDI(int pin) {
+  int aiValue = analogRead(pin);
+  int aiState = 0;
+  if (aiValue < ai_threshold) {
+    aiState = 1;
+  }
+  return aiState;
+}
+
+void checkSerial() {
   while (Serial.available() > 0) {
     String command = Serial.readStringUntil('/');
     
-    if (command == "digital") {
-      digitalCommand();
+    if (command == "digital_output") {
+      String tag = Serial.readStringUntil('/');
+      int state = Serial.parseInt();
+      digitalOutput(tag, state);
     }
   }
-}  
-  
-void digitalCommand() {
-    
-  int digitalIndex = Serial.parseInt();
-    
-  int digitalValue = Serial.parseInt();
-    
-  int pin = digitalIndex + 5;
-    
-  digitalWrite(pin, digitalValue);
-  
+}
+
+void digitalOutput(String tag, int state) {
+  if (tag == "do_0") {
+    do_0_state = state;
+    digitalWrite(do_0_pin, state);
+  }
+  else if (tag == "do_1") {
+    do_1_state = state;
+    digitalWrite(do_1_pin, state);
+  }
+  else if (tag == "do_2") {
+    do_2_state = state;
+    digitalWrite(do_2_pin, state);
+  }
+  else if (tag == "do_3") {
+    do_3_state = state;
+    digitalWrite(do_3_pin, state);
+  }
+  else if (tag == "do_4") {
+    do_4_state = state;
+    digitalWrite(do_4_pin, state);
+  }
+  else if (tag == "do_5") {
+    do_5_state = state;
+    digitalWrite(do_5_pin, state);
+  }
 }
 
 void killAllOutputs() {
-  
-  for (int pin = 5; pin < 11; pin++) {
-    digitalWrite(pin, 0);
-  }
+  digitalOutput("do_0", 0);
+  digitalOutput("do_1", 0);
+  digitalOutput("do_2", 0);
+  digitalOutput("do_3", 0);
+  digitalOutput("do_4", 0);
+  digitalOutput("do_5", 0);
 }
 
