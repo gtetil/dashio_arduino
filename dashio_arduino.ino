@@ -78,6 +78,7 @@ void sendData() {
   addStringData(String(di_3_state));
   addStringData(String(di_4_state));
   addStringData(String(di_5_state));
+  addStringData(String(ignition_state));
   Serial.println(data_string);
 }  
 
