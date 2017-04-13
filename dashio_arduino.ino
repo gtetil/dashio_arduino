@@ -118,38 +118,38 @@ void checkSerial() {
 }
 
 void digitalOutput(String tag, int state) {
-  if (tag == "do_0") {
+  if (tag == "DO_0") {
     do_0_state = state;
     digitalWrite(do_0_pin, state);
   }
-  else if (tag == "do_1") {
+  else if (tag == "DO_1") {
     do_1_state = state;
     digitalWrite(do_1_pin, state);
   }
-  else if (tag == "do_2") {
+  else if (tag == "DO_2") {
     do_2_state = state;
     digitalWrite(do_2_pin, state);
   }
-  else if (tag == "do_3") {
+  else if (tag == "DO_3") {
     do_3_state = state;
     digitalWrite(do_3_pin, state);
   }
-  else if (tag == "do_4") {
+  else if (tag == "DO_4") {
     do_4_state = state;
     digitalWrite(do_4_pin, state);
   }
-  else if (tag == "do_5") {
+  else if (tag == "DO_5") {
     do_5_state = state;
     digitalWrite(do_5_pin, state);
   }
 }
 
 void killAllOutputs() {
-  digitalOutput("do_0", 0);
-  digitalOutput("do_1", 0);
-  digitalOutput("do_2", 0);
-  digitalOutput("do_3", 0);
-  digitalOutput("do_4", 0);
-  digitalOutput("do_5", 0);
+  digitalOutput("DO_0", 0);
+  digitalOutput("DO_1", 0);
+  digitalOutput("DO_2", 0);
+  digitalOutput("DO_3", 0);
+  digitalOutput("DO_4", 0);
+  digitalOutput("DO_5", 0);
 }
 
