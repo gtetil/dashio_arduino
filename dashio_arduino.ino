@@ -1,4 +1,4 @@
-
+  
 //digital output pins
 int do_0_pin = 5;
 int do_1_pin = 6;
@@ -8,10 +8,10 @@ int do_4_pin = 9;
 int do_5_pin = 10;
 
 //digital input pins
-int di_0_pin = 5; //analog input
-int di_1_pin = 4; //analog input
-int di_2_pin = 3; //analog input
-int di_3_pin = 2; //analog input
+int di_0_pin = 2; //analog input
+int di_1_pin = 3; //analog input
+int di_2_pin = 4; //analog input
+int di_3_pin = 5; //analog input
 int di_4_pin = 2;
 int di_5_pin = 3;
 int ignition_pin = 4;
