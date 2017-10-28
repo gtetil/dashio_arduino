@@ -36,7 +36,11 @@ int ignition_state = 0;
 //misc
 int ai_threshold = 128;
 unsigned long main_timer = millis();
+unsigned long pwm_timer = micros();
+unsigned long pwm_delay = 25;
+int pwm_state = 0;
 String data_string;
+int flame_detect = 0;
 
 void setup() {
   
@@ -51,6 +55,8 @@ void setup() {
   pinMode(di_4_pin, INPUT);
   pinMode(di_5_pin, INPUT);
   pinMode(ignition_pin, INPUT);
+
+  pinMode(11, OUTPUT);  //4kHz 10% PWM for flame detect circuit
 }
 
 void loop() {
@@ -67,7 +73,22 @@ void loop() {
   if (ignition_state == 0) {
     killAllOutputs();
   }
-  
+
+  if (flame_detect == 1) {
+    if ((micros() - pwm_timer) >= pwm_delay) {
+      pwm_timer = micros();
+      if (pwm_state == 0) {
+        digitalWrite(11, HIGH);
+        pwm_delay = 25;
+        pwm_state = 1;
+      }
+      else if (pwm_state == 1) {
+        digitalWrite(11, LOW);
+        pwm_delay = 225;
+        pwm_state = 0;
+      }
+    }
+  }
 }  
 
 void sendData() {
